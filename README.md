@@ -1,0 +1,21 @@
+# Dairy Shop POS (offline, SQLite)
+**Run:** `python3 server.py --demo` (loads demo.py sample data) (omit `--demo` for an empty DB) then open http://localhost:8000. Needs Python 3.9+ only; no installs. Data: `dairy.db`.
+**Tests:** `python3 tests.py` runs the 10 mandatory acceptance tests from the brief (13 checks, temp DB, includes restart persistence and backup); `python3 smoke.py` is an extra API check.
+**Backup:** Settings > Create backup (writes `backups/dairy-<timestamp>.db`, never overwrites). **Restore:** stop the app, copy the backup over `dairy.db`, restart.
+**Costing:** last purchase cost; profit is *estimated* = net sales - COGS - wastage - expenses. Void/adjust/discount-over-limit/settings use PIN (default 1234, stored in settings table; change it).
+**Login:** `admin` / `admin123` on first run (set `ADMIN_PASSWORD` env var to override; change it in Settings). Passwords are PBKDF2-hashed. Roles: admin (everything) and cashier (sell/receive/return; voids, stock counts, balance adjustments, settings, big discounts and over-credit-limit sales need an admin or the supervisor PIN).
+**Desktop (optional):** with internet, `npm install && npm start` launches the Electron wrapper (main.js/preload.js, context isolation, no Node in the renderer; it only talks to the login-protected local API). This wrapper is untested; the browser version is the tested one.
+## Checklist
+Completed: login + roles, dashboard, products with decimal units, configurable unit conversions, purchases + supplier ledger/payments, purchase returns, POS (barcode, cart, discount reason, tax, credit-limit rule, split/partial/credit, duplicate-save protection, single DB transaction), 80 mm receipt print/reprint with logo, customer ledger/collections/advances/adjustments, open invoices (payments applied oldest-first) and aging, sale returns (resalable/damaged), void via reversing entries, wastage, stock counts, stock ledger with user, valuation (last cost), expiry/near-expiry alerts, expenses, cash register + day close, reports (today/7/30 days/custom, by supplier, aging) + CSV, audit trail, created-by user on docs/stock/cash/ledger, backup/restore.
+Partially: expiry is per purchase line (not depleted per batch, so sold-out lines stop alerting only when product stock is 0); reports are on-screen tables with CSV for sales/purchases/stock/expenses; tests are smoke.py only.
+Not completed: React/Tailwind front end (plain JS used), tested Electron installer build.
+
+## Test cases (tests.py)
+1 liter/kg products with decimal prices - 2 purchase raises stock and supplier payable - 3 fractional sale, receipt, stock drops once (duplicate save blocked) - 4 credit sale ledger - 5 collection and supplier payment (ledger + cash) - 6 partial return (stock, refund, net sales) - 7 wastage and expense reports - 8 date-filtered sales report reconciles to invoices - 9 day close variance and no double close - 10 restart persistence and backup - extras: negative stock blocked, CSV export.
+UI helpers: click any table header to sort; F2 = focus POS search, F9 = complete sale, Esc = clear search; products list is paginated; CSV exports for sales, purchases, stock, expenses, customers, suppliers, products, ledger.
+New: category filter at POS, split payments (cash + card), sale notes, brand/notes on products, party edit/notes/active, date-ranged statements with print, payment receipts, purchase date + product cost history, expense payment source/reference, daily stock report (opening/received/sold/returns/wastage/closing), cash report, slow-movers, negative-stock flag, dashboard date range, stock-ledger date filter, updated-at/updated-by on products/parties/docs.
+Still pending: React/Tailwind rewrite, tested Electron build, item-level tax/discount, printer name/width settings, per-batch expiry depletion, screenshots.
+Screenshots: run the app with `--demo` and capture the Dashboard, POS, receipt and Reports screens (not included, no browser here).
+
+## Handover files
+`Dairy_POS_Project_Report.pdf` (checklist, test results, screenshots, limitations), `screenshots/` (real browser captures of the demo data). Receipt width and printer name are in Settings (`receipt_mm`, `printer`); printing uses the browser print dialog.
