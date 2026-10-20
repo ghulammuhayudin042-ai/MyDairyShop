@@ -19,3 +19,7 @@ Screenshots: run the app with `--demo` and capture the Dashboard, POS, receipt a
 
 ## Handover files
 `Dairy_POS_Project_Report.pdf` (checklist, test results, screenshots, limitations), `screenshots/` (real browser captures of the demo data). Receipt width and printer name are in Settings (`receipt_mm`, `printer`); printing uses the browser print dialog.
+
+## Deploy on Netlify (static, no server)
+Netlify cannot run `server.py`, so the `web/` folder runs the same Python/SQLite backend **inside the browser** (Pyodide, see `web/pos-web.js`, `web/py/bridge.py`). Deploy: drag the **`web`** folder onto https://app.netlify.com/drop, or connect the repo (`netlify.toml` already sets publish = `web`, no build command). Login `admin` / `admin123`; demo data loads on first visit.
+Notes: needs internet on first load (Python engine comes from cdn.jsdelivr.net, then cached); data is saved in that browser only (IndexedDB), "Create database backup" downloads the .db file. After changing `server.py`, `demo.py` or `index.html`, run `python3 make_web.py` to refresh `web/`.

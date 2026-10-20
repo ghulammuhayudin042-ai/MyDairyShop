@@ -1,0 +1,8 @@
+# Static site: no build step. The Python/SQLite backend runs inside the browser (Pyodide), see web/pos-web.js
+[build]
+  publish = "web"
+
+[[headers]]
+  for = "/py/*"
+  [headers.values]
+    Cache-Control = "no-cache"
